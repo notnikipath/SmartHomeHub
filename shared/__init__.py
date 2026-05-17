@@ -1,0 +1,1 @@
+# Namespace package for SmartHome shared modules.

@@ -1,0 +1,179 @@
+﻿services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    container_name: smarthome-api-gateway
+    env_file: .env
+    ports:
+      - "31240:8500"
+    depends_on:
+      - device-service
+      - automation-service
+      - voice-service
+      - monitoring-service
+      - security-service
+      - notification-service
+      - integration-service
+    networks: [smarthome-net]
+
+  device-service:
+    build:
+      context: .
+      dockerfile: device-service/Dockerfile
+    container_name: smarthome-device
+    env_file: .env
+    ports:
+      - "31241:8501"
+    depends_on:
+      - redis
+      - rabbitmq
+    networks: [smarthome-net]
+
+  automation-service:
+    build:
+      context: .
+      dockerfile: automation-service/Dockerfile
+    container_name: smarthome-automation
+    env_file: .env
+    ports:
+      - "31071:8502"
+    depends_on:
+      - redis
+      - rabbitmq
+    networks: [smarthome-net]
+
+  voice-service:
+    build:
+      context: .
+      dockerfile: voice-service/Dockerfile
+    container_name: smarthome-voice
+    env_file: .env
+    ports:
+      - "31070:8503"
+    depends_on:
+      - rabbitmq
+    networks: [smarthome-net]
+
+  monitoring-service:
+    build:
+      context: .
+      dockerfile: monitoring-service/Dockerfile
+    container_name: smarthome-monitoring
+    env_file: .env
+    ports:
+      - "31072:8504"
+    depends_on:
+      - postgres
+      - influxdb
+      - redis
+    networks: [smarthome-net]
+
+  security-service:
+    build:
+      context: .
+      dockerfile: security-service/Dockerfile
+    container_name: smarthome-security
+    env_file: .env
+    ports:
+      - "31066:8505"
+    depends_on:
+      - postgres
+      - redis
+    networks: [smarthome-net]
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: notification-service/Dockerfile
+    container_name: smarthome-notification
+    env_file: .env
+    ports:
+      - "31242:8506"
+    depends_on:
+      - rabbitmq
+    networks: [smarthome-net]
+
+  integration-service:
+    build:
+      context: .
+      dockerfile: integration-service/Dockerfile
+    container_name: smarthome-integration
+    env_file: .env
+    ports:
+      - "31243:8507"
+    depends_on:
+      - redis
+      - mosquitto
+    networks: [smarthome-net]
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: smarthome-frontend
+    env_file: .env
+    ports:
+      - "31244:5178"
+    depends_on:
+      - api-gateway
+    networks: [smarthome-net]
+
+  postgres:
+    image: postgres:16
+    container_name: smarthome-postgres
+    environment:
+      POSTGRES_DB: smarthome
+      POSTGRES_USER: smarthome
+      POSTGRES_PASSWORD: smarthome
+    ports:
+      - "32139:5432"
+    volumes:
+      - smarthome_postgres_data:/var/lib/postgresql/data
+    networks: [smarthome-net]
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: smarthome-influxdb
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: adminadmin
+      DOCKER_INFLUXDB_INIT_ORG: smarthome
+      DOCKER_INFLUXDB_INIT_BUCKET: telemetry
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: smarthome-token
+    ports:
+      - "30007:8086"
+    volumes:
+      - smarthome_influxdb_data:/var/lib/influxdb2
+    networks: [smarthome-net]
+
+  redis:
+    image: redis:7
+    container_name: smarthome-redis
+    ports:
+      - "31069:6379"
+    networks: [smarthome-net]
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: smarthome-rabbitmq
+    ports:
+      - "31067:5672"
+      - "31068:15672"
+    networks: [smarthome-net]
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: smarthome-mqtt
+    ports:
+      - "31073:1883"
+    networks: [smarthome-net]
+
+networks:
+  smarthome-net:
+    driver: bridge
+
+volumes:
+  smarthome_postgres_data:
+  smarthome_influxdb_data:
