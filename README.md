@@ -34,7 +34,7 @@ SmartHome Hub is a microservice platform for centralized IoT control. It support
 ## Run locally
 
 ```bash
-cd d:\Шарага\Кинжибаев\task_9_smarthome
+cd 'your/project/folder'
 docker compose up --build -d
 ```
 
