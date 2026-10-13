@@ -125,7 +125,7 @@ export function DashboardPage() {
       return "loading";
     }
     if (status === "failed") {
-      return "fallback";
+      return "Service unavailable";
     }
     return "live";
   }, [status]);
@@ -143,7 +143,7 @@ export function DashboardPage() {
       <header className="hero">
         <div className="hero-copy">
           <p className="eyebrow">SmartHome Hub</p>
-          <h1>Centralized IoT orchestration for comfort, safety, and energy control.</h1>
+          <h1>Your connected home</h1>
           <p className="sub">
             Manage devices, run automation scenarios, process voice commands, and detect abnormal activity from a single
             control center.
@@ -178,7 +178,7 @@ export function DashboardPage() {
               Theme
             </button>
           </div>
-          <p className="status-line">Status: {statusLabel}</p>
+          <p className="status-line" role="status" aria-live="polite">Status: {statusLabel}</p>
         </div>
       </header>
 
@@ -204,7 +204,7 @@ export function DashboardPage() {
         <KpiCard title="Energy Forecast" value={`${Number(dashboard.kpi?.energy_forecast_kwh || 0).toFixed(2)} kWh`} target="Next 24h" ok />
       </section>
 
-      {error ? <div className="error-banner">{error}</div> : null}
+      {error ? <div className="error-banner" role="alert">{error}</div> : null}
 
       <section className="content-grid">
         <article className="panel panel-featured">
